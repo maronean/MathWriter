@@ -8,6 +8,8 @@ Users are given a grid to write on, either with mouse or touch input. Handwritte
 While there many greate tools out there for transcribing math problems on a computer there is still no real for scratch paper.
 The goal of this project is to figure out a way to be more accessible than everyday scratch paper while still maintaing the natural feeling of writing things out. 
 
+![Screenshot](https://github.com/maronean/MathWriter/blob/master/public/images/MathScreenshot.png)
+
 ## Installation
 If you would like to try running this application you will need to create a MyScript account and get an application key. 
 Go to: (https://www.myscript.com/) 
@@ -32,3 +34,6 @@ listening on *:3000
 ```
 
 Then just pick the browser of your choice (Works best on desktop or tablets), and navigate to http://localhost:3000.
+
+## Note
+This project was created as a proof of concept and is not intended at this time to be used on any public facing web platform. 
