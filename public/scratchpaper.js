@@ -1,15 +1,22 @@
+
 let TIME_TO_SEND = 1500;
 let canvas;
 let ctx;
 let flag = false;
 let prevX = 0, currX = 0, prevY = 0, currY = 0;
 
+//Tracks coordinates of current penstrokes
 let strokex = [];
 let strokey = [];
+
+//Next CellContent object to be sent.
 let previousCell;
+
 let sendTimer;
 
+//Tracks edit history for undo functionality.
 let cellHistory = [];
+//Map of current CellContent objects displayed on canvas.
 let cellMap = {};
 
 /**

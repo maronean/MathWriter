@@ -1,48 +1,14 @@
+/**
+ * @author Andrew Marone
+ * @description Utility functions for interfacing with the HTML canvas.
+ * Also contains essential data structures for managing session data.
+ */
+
 let LINE_WIDTH = 2;
 let CELL_SIZE = 120;
 let STROKE_STYLE = "black";
 let CANVAS_FONT = '80px Arial';
 let MATH_OPERATION = '+';
-
-function addCanvasListeners(canvas) {
-    //Set up listener for mouse events
-    canvas.addEventListener("mousemove", function (evt) {
-        processPenMove(evt)
-    }, false);
-    canvas.addEventListener("mousedown", function (evt) {
-        processPennDown(evt)
-    }, false);
-    canvas.addEventListener("mouseup", function (evt) {
-        processPenUp(evt)
-    }, false);
-    canvas.addEventListener("mouseout", function (evt) {
-        processPenUp(evt)
-    }, false);
-
-    // Set up listener for touch events for mobile, etc
-    canvas.addEventListener("touchstart", function (evt) {
-        let touch = evt.touches[0];
-        let mouseEvent = new MouseEvent("mousedown", {
-            clientX: touch.clientX,
-            clientY: touch.clientY
-        });
-        canvas.dispatchEvent(mouseEvent);
-    }, false);
-
-    canvas.addEventListener("touchend", function (evt) {
-        let mouseEvent = new MouseEvent("mouseup", {});
-        canvas.dispatchEvent(mouseEvent);
-    }, false);
-
-    canvas.addEventListener("touchmove", function (evt) {
-        let touch = evt.touches[0];
-        let mouseEvent = new MouseEvent("mousemove", {
-            clientX: touch.clientX,
-            clientY: touch.clientY
-        });
-        canvas.dispatchEvent(mouseEvent);
-    }, false);
-}
 
 /**
  * Draws the grid displayed on the canvas.
@@ -100,6 +66,53 @@ function draw(prevX, prevY, currX, currY) {
     ctx.closePath();
 }
 
+/**
+ * Register listeners to the Canvas contect.
+ * @param canvas - Reference to the canvas 2D context.
+ */
+function addCanvasListeners(canvas) {
+    //Set up listener for mouse events
+    canvas.addEventListener("mousemove", function (evt) {
+        processPenMove(evt)
+    }, false);
+    canvas.addEventListener("mousedown", function (evt) {
+        processPennDown(evt)
+    }, false);
+    canvas.addEventListener("mouseup", function (evt) {
+        processPenUp(evt)
+    }, false);
+    canvas.addEventListener("mouseout", function (evt) {
+        processPenUp(evt)
+    }, false);
+
+    // Set up listener for touch events for mobile, etc
+    canvas.addEventListener("touchstart", function (evt) {
+        let touch = evt.touches[0];
+        let mouseEvent = new MouseEvent("mousedown", {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        canvas.dispatchEvent(mouseEvent);
+    }, false);
+
+    canvas.addEventListener("touchend", function (evt) {
+        let mouseEvent = new MouseEvent("mouseup", {});
+        canvas.dispatchEvent(mouseEvent);
+    }, false);
+
+    canvas.addEventListener("touchmove", function (evt) {
+        let touch = evt.touches[0];
+        let mouseEvent = new MouseEvent("mousemove", {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        canvas.dispatchEvent(mouseEvent);
+    }, false);
+}
+
+/**
+ * Represents the current state of a cell graphical cell, including position and contents.
+ */
 class CellContent {
     constructor(xCoords, yCoords, cellPosition) {
         this.xCoords = [xCoords];

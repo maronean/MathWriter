@@ -16,19 +16,28 @@ app.get('/', function(req, res) {
  
  
 io.on('connection', function(socket){
-  socket.on('stroke coordinates', function(msg){
+    //Listening for client request to send coordinate data.
+    socket.on('stroke coordinates', function(msg){
       sendMyScriptCoordinates(msg, socket);
-  });
+    });
 });
 
 
-
-
+/**
+ * Parses the JSON response from MyScript to extract the most likely number value match.
+ * @param responseBody - json response body.
+ * @returns string represening the number identified by Myscript.
+ */
 function parseMyscriptResponse(responseBody) {
     var responseJson = JSON.parse(responseBody);
     return responseJson.result.textSegmentResult.candidates[0].label;
 }
 
+/**
+ * Sents a POST request to MyScript with the list of graphical coordinates to be evaluated
+ * @param clientRequest - incomplete request sent by client.
+ * @param clientSocket - client socket, used to send results to client.
+ */
 function sendMyScriptCoordinates(clientRequest, clientSocket) {
   var payload = {
       applicationKey : MYSCRIPT_APPLICATION_KEY,
