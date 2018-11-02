@@ -1,5 +1,10 @@
-
+/**
+ * @author Andrew Marone
+ * @description Central logic for processing user actions and handling handwriting recognitions requests.
+ */
 let TIME_TO_SEND = 1500;
+let CANVAS_UPDATE_MESSAGE = 'canvas update';
+let SEND_COORDINATES_MESSAGE = 'stroke coordinates';
 let canvas;
 let ctx;
 let flag = false;
@@ -11,10 +16,9 @@ let strokey = [];
 
 //Next CellContent object to be sent.
 let previousCell;
-
+//Timer set for Cell Contents to be sent.
 let sendTimer;
-
-//Tracks edit history for undo functionality.
+//Tracks edit history for undo functionality. Will contain key references for cellMap.
 let cellHistory = [];
 //Map of current CellContent objects displayed on canvas.
 let cellMap = {};
@@ -133,6 +137,7 @@ function storeCell(cell) {
 function undo(){
     let removedCoord = cellHistory.pop();
     let removedCell = cellMap[removedCoord];
+    //If a number has been recorded but there is still a penstroke. Removes most recent penstroke instead of deleting.
     if (removedCell.isSet && removedCell.xCoords.length > 0) {
         removedCell.xCoords.pop();
         removedCell.yCoords.pop();
@@ -180,26 +185,27 @@ function getCellPosition(xCoords, yCoords) {
 function updateCanvas() {
     ctx.clearRect(0, 0, w, h);
     drawGrid();
+
     for (let currentCell of cellHistory) {
         cellMap[currentCell].drawPenStrokes(ctx);
         if (cellMap[currentCell].isSet) {
             cellMap[currentCell].drawNumber(ctx);
         }
     }
-    if (strokex.length > 1 && strokey.length > 1){
+
+    if (strokex.length > 1 && strokey.length > 1) {
         ctx.beginPath();
         ctx.moveTo(strokex[0],strokey[0]);
+
         for (let i = 0; i < strokex; i++) {
             ctx.lineTo(strokex[i],strokey[i]);
             ctx.moveTo(strokex[i],strokey[i]);
         }
+
         ctx.strokeStyle = STROKE_STYLE;
         ctx.lineWidth = LINE_WIDTH;
         ctx.stroke();
     }
-    console.log('canvas update');
-    console.log(cellHistory);
-    console.log(cellMap);
 }
 
 /**
@@ -210,12 +216,13 @@ function sendPenStrokes(cellToSend) {
     if(cellToSend.isSet) {
         return;
     }
+
     let content = previousCell.buildMessage();
-    socket.emit('stroke coordinates', content);
+    socket.emit(SEND_COORDINATES_MESSAGE, content);
 }
 
 let socket = io();
-socket.on('canvas update', function(msg) {
+socket.on(CANVAS_UPDATE_MESSAGE, function(msg) {
     let coord = msg.coordinates;
     cellMap[coord].setValueAndClear(msg.value);
     updateCanvas();

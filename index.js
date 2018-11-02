@@ -1,27 +1,33 @@
-var path = require('path');
-var express = require('express');
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var request = require('request');
-var dir = path.join(__dirname, 'public');
+let path = require('path');
+let express = require('express');
+let app = express();
+let http = require('http').Server(app);
+let io = require('socket.io')(http);
+let request = require('request');
+let dir = path.join(__dirname, 'public');
 
-var MYSCRIPT_REST_ENDPOINT = 'https://cloud.myscript.com/api/v3.0/recognition/rest/text/doSimpleRecognition.json';
-var MYSCRIPT_APPLICATION_KEY = process.env.MYSCRIPT_APPLICATION_KEY;
+let MYSCRIPT_REST_ENDPOINT = 'https://cloud.myscript.com/api/v3.0/recognition/rest/text/doSimpleRecognition.json';
+let MYSCRIPT_APPLICATION_KEY = process.env.MYSCRIPT_APPLICATION_KEY;
+let CANVAS_UPDATE_MESSAGE = 'canvas update';
+let SEND_COORDINATES_MESSAGE = 'stroke coordinates';
+
 app.use(express.static(dir));
 
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/canvastest.html');
 });
- 
- 
+
 io.on('connection', function(socket){
     //Listening for client request to send coordinate data.
-    socket.on('stroke coordinates', function(msg){
+    socket.on(SEND_COORDINATES_MESSAGE, function(msg){
       sendMyScriptCoordinates(msg, socket);
     });
 });
 
+let port = process.env.PORT || 3000;
+http.listen(port, function(){
+    console.log('listening on *:3000');
+});
 
 /**
  * Parses the JSON response from MyScript to extract the most likely number value match.
@@ -29,7 +35,7 @@ io.on('connection', function(socket){
  * @returns string represening the number identified by Myscript.
  */
 function parseMyscriptResponse(responseBody) {
-    var responseJson = JSON.parse(responseBody);
+    let responseJson = JSON.parse(responseBody);
     return responseJson.result.textSegmentResult.candidates[0].label;
 }
 
@@ -39,7 +45,7 @@ function parseMyscriptResponse(responseBody) {
  * @param clientSocket - client socket, used to send results to client.
  */
 function sendMyScriptCoordinates(clientRequest, clientSocket) {
-  var payload = {
+  let payload = {
       applicationKey : MYSCRIPT_APPLICATION_KEY,
       textInput : clientRequest.textInput
   };
@@ -48,13 +54,8 @@ function sendMyScriptCoordinates(clientRequest, clientSocket) {
       return console.error('MyScript service responded with error.', error);
     }
     if (response.statusCode == 200) {
-        var responseValue = parseMyscriptResponse(body);
-        clientSocket.emit('canvas update',{'coordinates':clientRequest.cell,'value':responseValue});
+        let responseValue = parseMyscriptResponse(body);
+        clientSocket.emit(CANVAS_UPDATE_MESSAGE,{'coordinates':clientRequest.cell,'value':responseValue});
     }
   });
 }
-
-var port = process.env.PORT || 3000;
-http.listen(port, function(){
-    console.log('listening on *:3000');
-});
